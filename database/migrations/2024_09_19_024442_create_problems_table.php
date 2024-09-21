@@ -10,8 +10,9 @@ return new class extends Migration {
         Schema::create('problems', function (Blueprint $table) {
             $table->id();
             $table->string('question');
-            $table->json('answerChoices');
+            $table->json('answer_choices');
             $table->string('correct_answer_id');
+            $table->string('quiz_operand');
             $table->timestamps();
         });
     }

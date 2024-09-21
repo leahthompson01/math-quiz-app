@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Problem;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Operands;
 
 class ProblemController extends Controller
 {
@@ -24,27 +25,63 @@ class ProblemController extends Controller
         Problem::create($data);
         $problemArr = Problem::all()->toArray();
         shuffle($problemArr);
-        return Inertia::render('Problems',['problems' => array_slice($problemArr, 0, 4)]);
+//        return Inertia::render('Problems',['problems' => array_slice($problemArr, 0, 4)]);
     }
 
     public function generateProblem(){
         $rand1 = mt_rand(0, 50);
         $rand2 = mt_rand(0, 50);
-        $question = "What is the sum of " . $rand1 . " + " . $rand2 . "?";
-        $correctAnswer = $rand1 + $rand2;
-        $answerChoice1 = mt_rand(0, $correctAnswer + 10);
-        $answerChoice2 = mt_rand(0, $correctAnswer + 10);
-        $answerChoice3 = mt_rand(0, $correctAnswer + 10);
-        while ($answerChoice1 == $correctAnswer || $answerChoice2 == $correctAnswer || $answerChoice3 == $correctAnswer) {
+        $operandArr = Operands::cases();
+        $operand = $operandArr[array_rand(Operands::cases())]->value;
+//        $operand_functions_arr = ["+" => function($a,$b) use ($rand2, $rand1) {
+//            $question = "What is the sum of " . $rand1 . " + " . $rand2 . "?";
+//            $correctAnswer = $rand1 + $rand2;
+//            $answerChoice1 = mt_rand(0, $correctAnswer + 10);
+//            $answerChoice2 = mt_rand(0, $correctAnswer + 10);
+//            $answerChoice3 = mt_rand(0, $correctAnswer + 10);
+//            while ($answerChoice1 == $correctAnswer || $answerChoice2 == $correctAnswer || $answerChoice3 == $correctAnswer) {
+//                $answerChoice1 = mt_rand(0, $correctAnswer + 10);
+//                $answerChoice2 = mt_rand(0, $correctAnswer + 10);
+//                $answerChoice3 = mt_rand(0, $correctAnswer + 10);
+//            }
+//            $answerChoices = [$answerChoice1, $answerChoice2, $answerChoice3, $correctAnswer];
+//            shuffle($answerChoices);
+//            $correctAnswerIndex = array_search($correctAnswer, $answerChoices);
+//            return ['question' => $question, 'answerChoices'=> $answerChoices,'correct_answer_id'=> $correctAnswerIndex];
+//        }, "-" => function($a,$b){}];
+        if($operand == '+') {
+            $question = "What is the sum of " . $rand1 . " + " . $rand2 . "?";
+            $correctAnswer = $rand1 + $rand2;
             $answerChoice1 = mt_rand(0, $correctAnswer + 10);
             $answerChoice2 = mt_rand(0, $correctAnswer + 10);
             $answerChoice3 = mt_rand(0, $correctAnswer + 10);
+            while ($answerChoice1 == $correctAnswer || $answerChoice2 == $correctAnswer || $answerChoice3 == $correctAnswer) {
+                $answerChoice1 = mt_rand(0, $correctAnswer + 10);
+                $answerChoice2 = mt_rand(0, $correctAnswer + 10);
+                $answerChoice3 = mt_rand(0, $correctAnswer + 10);
+            }
+            $answerChoices = [$answerChoice1, $answerChoice2, $answerChoice3, $correctAnswer];
+            shuffle($answerChoices);
+            $correctAnswerIndex = array_search($correctAnswer, $answerChoices);
+            return ['question' => $question, 'answer_choices'=> $answerChoices,'correct_answer_id'=> $correctAnswerIndex, 'quiz_operand' => $operand];
         }
-        $answerChoices = [$answerChoice1, $answerChoice2, $answerChoice3, $correctAnswer];
-        shuffle($answerChoices);
-        $correctAnswerIndex = array_search($correctAnswer, $answerChoices);
-        $result = ['question' => $question, 'answerChoices'=> $answerChoices,'correct_answer_id'=> $correctAnswerIndex];
-        return $result;
+        if($operand == '-') {
+            $question = "What is the difference of " . $rand1 . " - " . $rand2 . "?";
+            $correctAnswer = $rand1 - $rand2;
+            $answerChoice1 = mt_rand($correctAnswer-20, $correctAnswer + 10);
+            $answerChoice2 = mt_rand($correctAnswer-20, $correctAnswer + 10);
+            $answerChoice3 = mt_rand($correctAnswer-20, $correctAnswer + 10);
+            while ($answerChoice1 == $correctAnswer || $answerChoice2 == $correctAnswer || $answerChoice3 == $correctAnswer) {
+                $answerChoice1 = mt_rand($correctAnswer-20, $correctAnswer + 10);
+                $answerChoice2 = mt_rand($correctAnswer-20, $correctAnswer + 10);
+                $answerChoice3 = mt_rand($correctAnswer-20, $correctAnswer + 10);
+            }
+            $answerChoices = [$answerChoice1, $answerChoice2, $answerChoice3, $correctAnswer];
+            shuffle($answerChoices);
+            $correctAnswerIndex = array_search($correctAnswer, $answerChoices);
+            return ['question' => $question, 'answer_choices'=> $answerChoices,'correct_answer_id'=> $correctAnswerIndex,'quiz_operand' => $operand];
+        }
+        dd($operand);
     }
     public function show(Problem $problem)
     {

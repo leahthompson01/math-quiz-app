@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('quizzes', function (Blueprint $table) {
             $table->id();
+            $table->boolean('is_quiz_submitted')->default(false);
+            $table->json("problems");
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Problem;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,11 +12,11 @@ class QuizController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Quiz/Index', [
-            'quizzes' => Quiz::with('user:id,name')->latest()->get()
-        ]);
+//        return Inertia::render('Quiz/Index', [
+//            'quizzes' => Quiz::where('user_id',)->latest()->get()
+//        ]);
     }
 
     /**
@@ -34,8 +35,13 @@ class QuizController extends Controller
 //        $validated = $request->validate([
 //            'problems' => 'required|array<Problem>|max:4',
 //        ]);
-        $request->user()->quizzes()->create([]);
-        return redirect()->route('quiz.index');
+        $problemsArr = Problem::all()->toArray();
+        shuffle($problemsArr);
+        $problemsArr = array_slice($problemsArr, 0, 10);
+//        $request->user()->quizzes()->create([]);
+        Quiz::create(["problems" => $problemsArr, "is_quiz_submitted" => false]);
+        return Inertia::render('Problems',['problems' => $problemsArr]);
+//        return redirect()->route('quiz.index');
     }
 
 

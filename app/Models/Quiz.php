@@ -7,22 +7,35 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use phpDocumentor\Reflection\Types\Boolean;
 
+/**
+ * @method static create(array $data)
+ */
 class Quiz extends Model
 {
     use HasFactory;
-    protected array $problems;
-    protected Boolean $isQuizSubmitted = false;
-    protected string $quizOperand;
+    protected $fillable = [
+        'problems',
+        'is_quiz_submitted'
+    ];
+
+    protected $casts = [
+        'is_quiz_submitted' => 'boolean',
+        'problems' => 'array'
+    ];
+//    protected array $problems;
+//    protected Boolean $isQuizSubmitted = false;
+//    protected string $quizOperand;
+
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function getProblems(): array
-    {
-        return $this->problems;
-    }
+//    public function getProblems(): array
+//    {
+//        return $this->;
+//    }
     public function problem(): BelongsTo
     {
         return $this->belongsTo(Problem::class);
