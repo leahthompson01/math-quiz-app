@@ -19,6 +19,7 @@ class Problem extends Model
         'quiz_operand'
     ];
 
+
     protected function casts(): array
     {
         return [
@@ -29,20 +30,31 @@ class Problem extends Model
     /**
      * @throws RandomException
      */
-    public static function addition(int $rand1, int $rand2, string $operand): array
-    {
-        $question = "What is the sum of " . $rand1 . " + " . $rand2 . "?";
-        $correctAnswer = $rand1 + $rand2;
-        $answerChoice1 = random_int(0, $correctAnswer + 10);
-        $answerChoice2 = random_int(0, $correctAnswer + 10);
-        $answerChoice3 = random_int(0, $correctAnswer + 10);
-        while ($answerChoice1 == $correctAnswer || $answerChoice2 == $correctAnswer || $answerChoice3 == $correctAnswer) {
-            $answerChoice1 = random_int(0, $correctAnswer + 10);
-            $answerChoice2 = random_int(0, $correctAnswer + 10);
-            $answerChoice3 = random_int(0, $correctAnswer + 10);
+    private static function generateAnswerChoices(int $correctAnswer, int $lowerRange, int $upperRange): array{
+
+        $answerChoice1 = random_int($lowerRange, $upperRange);
+        $answerChoice2 = random_int($lowerRange, $upperRange);
+        $answerChoice3 = random_int($lowerRange, $upperRange);
+        $answerChoices = [$answerChoice1, $answerChoice2, $answerChoice3];
+        $uniqueArr = array_unique($answerChoices);
+        while (count($uniqueArr) < 4) {
+            $answerChoice1 = random_int($lowerRange, $upperRange);
+            $answerChoice2 = random_int($lowerRange, $upperRange);
+            $answerChoice3 = random_int($lowerRange, $upperRange);
+            $uniqueArr =  array_unique([$correctAnswer, $answerChoice1, $answerChoice2, $answerChoice3]);
         }
         $answerChoices = [$answerChoice1, $answerChoice2, $answerChoice3, $correctAnswer];
         shuffle($answerChoices);
+        return $answerChoices;
+    }
+    /**
+     * @throws RandomException
+     */
+    public static function addition(int $rand1, int $rand2, string $operand): array
+    {
+        $question = "What is " . $rand1 . " + " . $rand2 . "?";
+        $correctAnswer = $rand1 + $rand2;
+        $answerChoices = self::generateAnswerChoices($correctAnswer, 0, $correctAnswer + 10);
         $correctAnswerIndex = array_search($correctAnswer, $answerChoices);
         return ['question' => $question, 'answer_choices'=> $answerChoices,'correct_answer_id'=> $correctAnswerIndex, 'quiz_operand' => $operand];
     }
@@ -52,19 +64,12 @@ class Problem extends Model
      */
     public static function subtraction(int $rand1, int $rand2, string $operand): array
     {
-        $question = "What is the difference of " . $rand1 . " - " . $rand2 . "?";
+        $question = "What is " . $rand1 . " - " . $rand2 . "?";
         $correctAnswer = $rand1 - $rand2;
-        $answerChoice1 = random_int($correctAnswer-20, $correctAnswer + 10);
-        $answerChoice2 = random_int($correctAnswer-20, $correctAnswer + 10);
-        $answerChoice3 = random_int($correctAnswer-20, $correctAnswer + 10);
-        while ($answerChoice1 == $correctAnswer || $answerChoice2 == $correctAnswer || $answerChoice3 == $correctAnswer) {
-            $answerChoice1 = random_int($correctAnswer-20, $correctAnswer + 10);
-            $answerChoice2 = random_int($correctAnswer-20, $correctAnswer + 10);
-            $answerChoice3 = random_int($correctAnswer-20, $correctAnswer + 10);
-        }
-        $answerChoices = [$answerChoice1, $answerChoice2, $answerChoice3, $correctAnswer];
-        shuffle($answerChoices);
+        $answerChoices = self::generateAnswerChoices($correctAnswer, $correctAnswer-20, $correctAnswer + 10);
         $correctAnswerIndex = array_search($correctAnswer, $answerChoices);
         return ['question' => $question, 'answer_choices'=> $answerChoices,'correct_answer_id'=> $correctAnswerIndex,'quiz_operand' => $operand];
     }
+
+
 }

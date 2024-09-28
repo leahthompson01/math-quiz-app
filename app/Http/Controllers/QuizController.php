@@ -14,9 +14,9 @@ class QuizController extends Controller
      */
     public function index(Request $request)
     {
-//        return Inertia::render('Quiz/Index', [
-//            'quizzes' => Quiz::where('user_id',)->latest()->get()
-//        ]);
+        return Inertia::render('Problems', [
+            'quizzes' => Quiz::where('user_id',)->latest()->get()
+        ]);
     }
 
     /**
@@ -32,44 +32,32 @@ class QuizController extends Controller
      */
     public function store(Request $request)
     {
-//        $validated = $request->validate([
-//            'problems' => 'required|array<Problem>|max:4',
-//        ]);
         $problemsArr = Problem::all()->toArray();
         shuffle($problemsArr);
         $problemsArr = array_slice($problemsArr, 0, 10);
-//        $request->user()->quizzes()->create([]);
         Quiz::create(["problems" => $problemsArr, "is_quiz_submitted" => false]);
-        return Inertia::render('Problems',['problems' => $problemsArr]);
-//        return redirect()->route('quiz.index');
+        $quiz = Quiz::all()->last();
+        return Inertia::render('Problems',['problems' => $problemsArr, 'id' => $quiz->id ]);
     }
 
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Quiz $quiz)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Quiz $quiz)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Quiz $quiz)
     {
-        $quiz->update([]);
-        return redirect()->route('quiz.index');
+
+        $validated = $request->validate([
+            'id' => 'required|int',
+        ]);
+        $quiz = Quiz::find($validated['id']);
+        $quiz->is_quiz_submitted = true;
+        $quiz->save();
+//        dd($quiz->attributesToArray());
+        return Inertia::render('Problems', ['problems' => $quiz->problems, 'id' => 6969 ]);
+
     }
 
+    public function sendHi(){
+        return 'hi';
+    }
     /**
      * Remove the specified resource from storage.
      */

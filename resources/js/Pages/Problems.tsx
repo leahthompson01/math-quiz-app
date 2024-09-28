@@ -2,8 +2,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import {PageProps, User} from '@/types';
 import AnswerChoiceBox from "@/Components/QuizComponents/AnswerChoiceBox";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
+import axios from "axios";
 
 type ProblemObj = {
     question: string,
@@ -14,12 +15,14 @@ type ProblemsProps = {
     auth: {
         user: User;
     },
-    problems: ProblemObj[]
+    problems: ProblemObj[],
+    id: number,
+
 
 }
 
 
-export default function Problems({ auth, problems }: ProblemsProps) {
+export default function Problems({ auth, problems, id }: ProblemsProps) {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<undefined | number>(undefined);
     const [isSubmitted,setIsSubmitted] = useState(false);
@@ -31,16 +34,37 @@ export default function Problems({ auth, problems }: ProblemsProps) {
     }
 
     function handleNextClick(){
-        if(selectedAnswer ! == undefined){
         setSelectedAnswersArr((prevState) => [...prevState,selectedAnswer]);
-        }
         setCurrentQuestionIndex((prevValue) => prevValue + 1);
-        setSelectedAnswer(undefined);
+        setSelectedAnswer(undefined)
     }
+
+    async function handleSubmit() {
+        setIsSubmitted(true);
+        const url = "/quiz"
+        try {
+            const response = await fetch(url,{
+                method:"POST"
+        });
+
+            const json = await response.json();
+            console.log(json)
+        } catch (error) {
+            // @ts-ignore
+            console.error(error);
+        }
+    }
+
+
+    console.log('this is what the id is ', id);
+    useEffect(() => {
+        console.log('selectedAnswer',selectedAnswer)
+        console.log('selected Answers ',selectedAnswersArr)
+    }, [selectedAnswersArr, selectedAnswer])
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Problems</h2>}
+            header={<h2 className="font-semibold text-xl text-white leading-tight">Problems</h2>}
         >
             <Head title="Problems" />
 
@@ -48,10 +72,10 @@ export default function Problems({ auth, problems }: ProblemsProps) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                                 <div className={'mt-8'}>
-                                    <h3 className={'text-center'}>{currentProblem.question}</h3>
+                                    <h3 className={'text-center text-gray-700 dark:text-white'}>{currentProblem.question}</h3>
                                     <div className={'grid grid-cols-2 justify-items-center mt-8 gap-6 px-6'}>
                                     {currentProblem.answer_choices.map(el =>
-                                        <AnswerChoiceBox selectedAnswer={selectedAnswer} setSelectedAnswer={setSelectedAnswer}>
+                                        <AnswerChoiceBox selectedAnswer={selectedAnswer} setSelectedAnswer={setSelectedAnswer} key={el}>
                                             {el}
                                         </AnswerChoiceBox>)
                                     }
@@ -60,8 +84,8 @@ export default function Problems({ auth, problems }: ProblemsProps) {
                                                     className={'disabled:text-gray-400 text-blue-500 '}>
                                                 <ChevronLeftIcon className={`size-12 disabled:text-gray-400`}/>
                                             </button>
-                                            <button disabled={currentQuestionIndex !== 9 || selectedAnswer === undefined} className={'disabled:text-gray-400'}
-                                            onClick={() => setIsSubmitted(true)}>
+                                            <button disabled={selectedAnswersArr.length !== 9} className={'disabled:text-gray-400'}
+                                            onClick={() => handleSubmit()}>
                                                 Submit
                                             </button>
                                             <button disabled={currentQuestionIndex === 9 || selectedAnswer === undefined} onClick={handleNextClick}

@@ -23,6 +23,8 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/problems', [QuizController::class, 'store'])
         ->name('problems.store');
+
+    Route::post('/quiz', [QuizController::class, 'sendHi'])->name('quiz.update');
 });
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

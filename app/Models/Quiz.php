@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use phpDocumentor\Reflection\Types\Boolean;
 
+
+
 /**
- * @method static create(array $data)
+ * @method static create(array $data),
  */
+
 class Quiz extends Model
 {
     use HasFactory;
@@ -25,6 +28,14 @@ class Quiz extends Model
 //    protected array $problems;
 //    protected Boolean $isQuizSubmitted = false;
 //    protected string $quizOperand;
+    public static function firstOrCreate(array $array)
+    {
+    }
+
+    public static function find(mixed $id)
+    {
+        return Quiz::query()->find($id);
+    }
 
 
     public function user(): BelongsTo
