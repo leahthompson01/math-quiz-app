@@ -29,7 +29,7 @@ export default function Problems({ auth, problems, id }: ProblemsProps) {
     const [selectedAnswer, setSelectedAnswer] = useState<undefined | number>(undefined);
     const [isSubmitted,setIsSubmitted] = useState(false);
     const currentProblem = problems[currentQuestionIndex];
-    const [selectedAnswersArr, setSelectedAnswersArr] = useState<selectedAnswersObj[]>([]);
+    const [selectedAnswersHash, setSelectedAnswersHash] = useState<selectedAnswersObj>({});
 
     function handleBackClick(){
         setCurrentQuestionIndex((prevValue) => prevValue - 1);
@@ -39,6 +39,7 @@ export default function Problems({ auth, problems, id }: ProblemsProps) {
         // if(selectedAnswer !== undefined) {
         //     setSelectedAnswersArr((prevState) => [...prevState, selectedAnswer]);
         // }
+        // setSelectedAnswersHash((prevState) => {return {...prevState,[currentQuestionIndex] : selectedAnswer}});
         setCurrentQuestionIndex((prevValue) => prevValue + 1);
         // setSelectedAnswer(undefined)
     }
@@ -55,16 +56,24 @@ export default function Problems({ auth, problems, id }: ProblemsProps) {
     }
 
 
+    useEffect(() => {
+        if(selectedAnswer !== undefined) {
+            setSelectedAnswersHash((prevState) => {
+                return {...prevState, [currentQuestionIndex]: selectedAnswer}
+            });
+        }
+        }, [selectedAnswer])
     console.log('this is what the id is ', id);
     useEffect(() => {
         console.log('selectedAnswer',selectedAnswer)
-        console.log('selected Answers ',selectedAnswersArr)
-    }, [selectedAnswersArr, selectedAnswer])
+        console.log('selected Answers ',selectedAnswersHash)
+    }, [selectedAnswersHash, selectedAnswer])
 
     // useEffect(() => {
     //     console.log('selectedAnswer',selectedAnswer)
     //     console.log('selected Answers ',selectedAnswersArr)
     // }, [selectedAnswersArr, selectedAnswer])
+    console.log({currentQuestionIndex})
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -83,15 +92,16 @@ export default function Problems({ auth, problems, id }: ProblemsProps) {
                                         <AnswerChoiceBox selectedAnswer={selectedAnswer}
                                                          setSelectedAnswer={setSelectedAnswer}
                                                          key={el}
-                                                         setSelectedAnswersArr={setSelectedAnswersArr}
+                                                         setSelectedAnswersHash={setSelectedAnswersHash}
                                                          currentQuestionIndex = {currentQuestionIndex}
                                             >
                                             {el}
                                         </AnswerChoiceBox>)
                                     }
                                     <div className={'flex col-span-2 mx-auto gap-12 py-8'}>
-                                        <button disabled={currentQuestionIndex === 0} onClick={handleBackClick}
-                                                className={'disabled:text-gray-400 text-blue-500 '}
+
+                                        <button disabled={currentQuestionIndex == 0} onClick={handleBackClick}
+                                                className={'disabled:text-gray-600 text-blue-500 '}
                                                 type={"button"}
                                         >
 
@@ -99,7 +109,7 @@ export default function Problems({ auth, problems, id }: ProblemsProps) {
                                         </button>
 
                                         <button
-                                            disabled={selectedAnswersArr.length !== 10 || isSubmitted}
+                                            disabled={Object.entries(selectedAnswersHash).length !== 10 || isSubmitted}
                                             type={"submit"}
                                             className={'disabled:text-gray-400 text-gray-700 dark:text-white'}>
                                             Submit
