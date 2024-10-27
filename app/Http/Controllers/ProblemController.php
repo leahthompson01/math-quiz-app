@@ -15,19 +15,10 @@ class ProblemController extends Controller
         return Problem::all();
     }
 
-    public function store(Request $request)
-    {
-        $data = $this->generateProblem();
-        Problem::create($data);
-        $problemArr = Problem::all()->toArray();
-        shuffle($problemArr);
-//        return Inertia::render('Problems',['problems' => array_slice($problemArr, 0, 4)]);
-    }
-
     /**
      * @throws RandomException
      */
-    public function generateProblem(){
+    public static function generateProblem(){
         $rand1 = random_int(0, 50);
         $rand2 = random_int(0, 50);
         $operandArr = Operands::cases();

@@ -21,17 +21,6 @@ class ProblemFactory extends Factory
      */
     public function definition(): array
     {
-        $rand1 = random_int(0, 50);
-        $rand2 = random_int(0, 50);
-        $operandArr = Operands::cases();
-        $operand = $operandArr[array_rand(Operands::cases())]->value;
-        if ($operand === '+') {
-            return Problem::addition($rand1, $rand2,$operand);
-        }
-        if ($operand === '-') {
-            return Problem::subtraction($rand1, $rand2,$operand);
-        }
-
-        return [];
+        return ProblemController::generateProblem();
     }
 }
