@@ -2,10 +2,12 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {Head, useForm} from '@inertiajs/react';
 import {PageProps, User} from '@/types';
 import AnswerChoiceBox from "@/Components/QuizComponents/AnswerChoiceBox";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {Link} from "@inertiajs/react";
 import axios from "axios";
+import Echo from "laravel-echo";
+import echo from "@/echo";
 
 type ProblemObj = {
     question: string,
@@ -30,7 +32,7 @@ export default function Problems({ auth, problems, id }: ProblemsProps) {
     const [isSubmitted,setIsSubmitted] = useState(false);
     const currentProblem = problems[currentQuestionIndex];
     const [selectedAnswersHash, setSelectedAnswersHash] = useState<selectedAnswersObj>({});
-
+    const [message,setMessage] = useState('');
     function handleBackClick(){
         setCurrentQuestionIndex((prevValue) => prevValue - 1);
     }
@@ -48,7 +50,22 @@ export default function Problems({ auth, problems, id }: ProblemsProps) {
         id: id,
     });
 
-    async function handleSubmit(e) {
+    useEffect(() => {
+        let channel = echo.listen('quiz-room', 'SayHello',(e : {"message" : string}) => {
+            console.log('inside useEffect',e)
+            setMessage(e.message)
+        })
+        //returning a cleanUp function
+        return () => {
+            channel.stopListening('SayHello',);
+
+        };
+        // let channel = echo.listen('quiz-start', 'QuizWasStarted', (e) => {
+        //
+        // })
+    }, []);
+    console.log('echo', echo);
+    async function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
         setIsSubmitted(true);
         post("/quiz")
@@ -87,6 +104,7 @@ export default function Problems({ auth, problems, id }: ProblemsProps) {
                         <div className={'mt-8'}>
                             <form onSubmit={handleSubmit}>
                                 <h3 className={'text-center text-gray-700 dark:text-white'}>{currentProblem.question}</h3>
+                                <div className={'text-center text-gray-700 dark:text-white'}> {message}</div>
                                 <div className={'grid grid-cols-2 justify-items-center mt-8 gap-6 px-6'}>
                                     {currentProblem.answer_choices.map(el =>
                                         <AnswerChoiceBox selectedAnswer={selectedAnswer}

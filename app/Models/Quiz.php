@@ -18,12 +18,15 @@ class Quiz extends Model
     use HasFactory;
     protected $fillable = [
         'problems',
-        'is_quiz_submitted'
+        'is_quiz_submitted',
+        'user_id',
+//        'selected_answers'
     ];
 
     protected $casts = [
         'is_quiz_submitted' => 'boolean',
-        'problems' => 'array'
+        'problems' => 'array',
+//        'selected_answers' => 'array'
     ];
 //    protected array $problems;
 //    protected Boolean $isQuizSubmitted = false;
